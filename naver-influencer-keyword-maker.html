@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>텍스트 필터링 서비스</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      line-height: 1.6;
+    }
+    textarea {
+      width: 100%;
+      height: 200px;
+      font-family: inherit;
+      font-size: 14px;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+    #result {
+      white-space: pre-wrap;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-top: 10px;
+      min-height: 100px;
+      background-color: #f9f9f9;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>텍스트 필터링 서비스</h1>
+  <textarea id="inputText" placeholder="여기에 여러 줄의 텍스트를 입력하세요"></textarea>
+  <button id="processBtn">필터 적용</button>
+  <h2>결과</h2>
+  <div id="result"></div>
+
+  <script>
+    document.getElementById('processBtn').addEventListener('click', function() {
+      // 입력된 텍스트를 가져옴
+      const text = document.getElementById('inputText').value;
+      // 줄 단위로 분리
+      const lines = text.split('\n');
+      // "키워드"와 "참여"가 들어간 줄은 제외하고 필터링 처리
+      const filtered = lines.filter(line => !line.includes("키워드") && !line.includes("참여"));
+      // 필터링 된 줄들을 다시 줄 단위의 문자열로 병합
+      const resultText = filtered.join('\n');
+      // 결과 영역에 출력
+      document.getElementById('result').innerText = resultText;
+    });
+  </script>
+</body>
+</html>
