@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>텍스트 필터링 서비스</title>
+  <title>텍스트 필터링 및 복사 서비스</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -32,27 +32,48 @@
       font-size: 16px;
       cursor: pointer;
     }
+    /* 복사 버튼이 필터 버튼 옆에 위치할 수 있도록 추가 */
+    #copyBtn {
+      margin-left: 10px;
+    }
   </style>
 </head>
 <body>
-  <h1>텍스트 필터링 서비스</h1>
+  <h1>텍스트 필터링 및 복사 서비스</h1>
   <textarea id="inputText" placeholder="여기에 여러 줄의 텍스트를 입력하세요"></textarea>
+  <br>
   <button id="processBtn">필터 적용</button>
+  <button id="copyBtn">복사하기</button>
   <h2>결과</h2>
   <div id="result"></div>
 
   <script>
     document.getElementById('processBtn').addEventListener('click', function() {
-      // 입력된 텍스트를 가져옴
+      // 입력된 텍스트 가져오기
       const text = document.getElementById('inputText').value;
       // 줄 단위로 분리
       const lines = text.split('\n');
-      // "키워드"와 "참여"가 들어간 줄은 제외하고 필터링 처리
+      // "키워드" 또는 "참여"가 포함된 줄은 제외
       const filtered = lines.filter(line => !line.includes("키워드") && !line.includes("참여"));
-      // 필터링 된 줄들을 다시 줄 단위의 문자열로 병합
-      const resultText = filtered.join('\n');
+      // 각 줄의 앞에 "#"를 추가
+      const resultLines = filtered.map(line => "#" + line);
+      // 다시 줄 단위 문자열로 합치기
+      const resultText = resultLines.join('\n');
       // 결과 영역에 출력
       document.getElementById('result').innerText = resultText;
+    });
+
+    document.getElementById('copyBtn').addEventListener('click', function() {
+      // 결과 텍스트 가져오기
+      const resultText = document.getElementById('result').innerText;
+      // 클립보드에 복사
+      navigator.clipboard.writeText(resultText)
+        .then(() => {
+          alert('결과가 클립보드에 복사되었습니다.');
+        })
+        .catch(err => {
+          console.error('복사 실패: ', err);
+        });
     });
   </script>
 </body>
