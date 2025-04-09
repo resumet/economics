@@ -3,41 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <title>HTML 파일 목록</title>
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      // 현재 폴더의 디렉토리 목록을 가져옵니다.
-      fetch('./')
-        .then(response => response.text())
-        .then(text => {
-          // 가져온 텍스트를 HTML 문서로 파싱합니다.
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(text, "text/html");
-          // 모든 링크 요소(<a>)를 선택합니다.
-          const links = doc.querySelectorAll("a");
-          const list = document.getElementById("file-list");
-          links.forEach(link => {
-            const href = link.getAttribute("href");
-            // 확장자가 .html인 파일이면서 이 index.html 파일 자체는 제외합니다.
-            if (href && href.endsWith('.html') && href !== "index.html") {
-              const li = document.createElement("li");
-              const a = document.createElement("a");
-              a.href = href;
-              a.textContent = href;
-              li.appendChild(a);
-              list.appendChild(li);
-            }
-          });
-        })
-        .catch(error => {
-          console.error("디렉토리 목록을 가져오는 중 에러 발생:", error);
-        });
-    });
-  </script>
 </head>
 <body>
   <h1>HTML 파일 목록</h1>
-  <ul id="file-list">
-    <!-- 여기에 동적으로 파일 링크가 추가됩니다 -->
-  </ul>
+  <a href="텍스트필터링서비스.html">텍스트 필터링 서비스</a>
 </body>
 </html>
