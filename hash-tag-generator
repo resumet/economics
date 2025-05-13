@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>공모주 해시태그 생성기</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 400px;
+    }
+    .container h1 {
+      margin-top: 0;
+      font-size: 1.2rem;
+      color: #333;
+    }
+    input[type="text"] {
+      width: calc(100% - 20px);
+      padding: 8px 10px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 4px;
+      background-color: #4CAF50;
+      color: #fff;
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .output {
+      margin-top: 10px;
+      max-height: 200px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+    .output p {
+      margin: 4px 0;
+      font-size: 0.95rem;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>공모주 해시태그 생성기</h1>
+    <input id="companyInput" type="text" placeholder="회사 이름을 입력하세요" />
+    <button id="generateBtn">생성</button>
+    <button id="copyBtn">복사</button>
+    <div class="output" id="output"></div>
+  </div>
+
+  <script>
+    const keywords = [
+      '공모주',
+      '청약',
+      '공모가',
+      '주관사',
+      '경쟁률',
+      '의무보유확약',
+      '매출',
+      '유통가능물량',
+      '상장일',
+      '환불일',
+      '배정일',
+      '청약일'
+    ];
+
+    const generateBtn = document.getElementById('generateBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const outputDiv = document.getElementById('output');
+
+    generateBtn.addEventListener('click', () => {
+      const companyName = document.getElementById('companyInput').value.trim();
+      outputDiv.innerHTML = '';
+
+      if (!companyName) {
+        alert('회사 이름을 입력해주세요.');
+        return;
+      }
+
+      keywords.forEach(keyword => {
+        const tag = `#${companyName}${keyword}`;
+        const p = document.createElement('p');
+        p.textContent = tag;
+        outputDiv.appendChild(p);
+      });
+    });
+
+    copyBtn.addEventListener('click', () => {
+      const tags = Array.from(outputDiv.querySelectorAll('p')).map(el => el.textContent).join('\n');
+      if (!tags) {
+        alert('복사할 해시태그가 없습니다.');
+        return;
+      }
+      // 우선 clipboard API 시도
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(tags)
+          .then(() => alert('해시태그가 클립보드에 복사되었습니다!'))
+          .catch(err => fallbackCopy(tags));
+      } else {
+        fallbackCopy(tags);
+      }
+    });
+
+    function fallbackCopy(text) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        alert('해시태그가 클립보드에 복사되었습니다!');
+      } catch (err) {
+        alert('복사에 실패했습니다: ' + err);
+      }
+      document.body.removeChild(textarea);
+    }
+  </script>
+</body>
+</html>
