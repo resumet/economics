@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>배당금 계산기 & 원금 계산기</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .calculator {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      width: 350px;
+      max-width: 90%;
+    }
+    .calculator h1, .calculator h2 {
+      margin: 0 0 10px;
+      font-size: 1.4em;
+      text-align: center;
+    }
+    .field { margin-bottom: 15px; }
+    .field label { display: block; margin-bottom: 5px; }
+    .field input {
+      width: 100%;
+      padding: 8px;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      font-size: 1em;
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+    button:hover { background-color: #218838; }
+    .result {
+      margin-top: 0;
+      font-size: 1em;
+      text-align: left;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+    hr { border: none; border-top: 1px solid #ddd; margin: 20px 0; }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <h1>배당금 계산기</h1>
+    <div class="field">
+      <label for="investment">투자금 (만원 단위):</label>
+      <input type="text" id="investment" placeholder="예: 100" />
+    </div>
+    <div class="field">
+      <label for="yield">배당수익률 (%):</label>
+      <input type="number" id="yield" step="0.01" placeholder="예: 3.5" />
+    </div>
+    <button id="calculateBtn">세전/세후 배당 계산</button>
+    <div class="result" id="result"></div>
+
+    <hr />
+
+    <h2>필요 투자금 계산기</h2>
+    <div class="field">
+      <label for="desiredMonthly">원하는 세후 월 배당금 (만원 단위):</label>
+      <input type="text" id="desiredMonthly" placeholder="예: 500" />
+    </div>
+    <div class="field">
+      <label for="yield2">배당수익률 (%):</label>
+      <input type="number" id="yield2" step="0.01" placeholder="예: 3.5" />
+    </div>
+    <button id="principalBtn">원금 계산하기</button>
+    <div class="result" id="principalResult"></div>
+  </div>
+
+  <script>
+    // 한글 숫자 변환 함수
+    function toKorean(num) {
+      const digits = ["", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구"];
+      const units = ["", "십", "백", "천"];
+      const sino = (n) => {
+        let str = '';
+        const s = String(n).padStart(4, '0');
+        for (let i = 0; i < 4; i++) {
+          const d = +s[i];
+          const unit = units[3 - i];
+          if (d === 0) continue;
+          str += (d > 1 ? digits[d] : '') + unit;
+        }
+        return str;
+      };
+      const eok = Math.floor(num / 100000000);
+      const man = Math.floor((num % 100000000) / 10000);
+      let result = '';
+      if (eok > 0) result += (eok > 1 ? sino(eok) : '') + '억';
+      if (man > 0) result += (man > 1 ? sino(man) : '') + '만';
+      if (!result) result = sino(num) + '원';
+      else result += '원';
+      return result;
+    }
+
+    // 쉼표 포맷팅 함수
+    function setupCommaInput(el) {
+      el.addEventListener('input', function() {
+        let value = this.value.replace(/,/g, '');
+        if (!value) { this.value = ''; return; }
+        if (isNaN(value)) { this.value = this.value.slice(0, -1); return; }
+        this.value = parseInt(value, 10).toLocaleString('ko-KR');
+      });
+    }
+
+    const invInput = document.getElementById('investment');
+    const desiredInput = document.getElementById('desiredMonthly');
+    setupCommaInput(invInput);
+    setupCommaInput(desiredInput);
+
+    document.getElementById('calculateBtn').addEventListener('click', function() {
+      const rawInv = invInput.value.replace(/,/g, '');
+      const investment = parseFloat(rawInv) * 10000;
+      const yieldRate = parseFloat(document.getElementById('yield').value);
+      const taxRate = 0.154;
+      const res = document.getElementById('result');
+      if (isNaN(investment) || isNaN(yieldRate)) {
+        res.textContent = '투자금과 배당수익률을 올바르게 입력해주세요.';
+        return;
+      }
+      const formattedInv = investment.toLocaleString('ko-KR') + '원';
+      const koreanInv = toKorean(investment);
+      const annualPre = Math.floor(investment * (yieldRate / 100));
+      const annualPost = Math.floor(annualPre * (1 - taxRate));
+      const monthlyPre = Math.floor(annualPre / 12);
+      const monthlyPost = Math.floor(annualPost / 12);
+      res.innerHTML =
+        `투자금: ${formattedInv} (${koreanInv})\n` +
+        `세전 연배당금: ${annualPre.toLocaleString('ko-KR')}원\n` +
+        `세후 연배당금: ${annualPost.toLocaleString('ko-KR')}원\n` +
+        `세전 월배당금: ${monthlyPre.toLocaleString('ko-KR')}원\n` +
+        `세후 월배당금: ${monthlyPost.toLocaleString('ko-KR')}원`;
+    });
+
+    document.getElementById('principalBtn').addEventListener('click', function() {
+      const rawDesired = desiredInput.value.replace(/,/g, '');
+      const desiredMonthlyNet = parseFloat(rawDesired) * 10000;
+      const yieldRate2 = parseFloat(document.getElementById('yield2').value);
+      const taxRate = 0.154;
+      const res2 = document.getElementById('principalResult');
+      if (isNaN(desiredMonthlyNet) || isNaN(yieldRate2)) {
+        res2.textContent = '원하는 배당금과 수익률을 올바르게 입력해주세요.';
+        return;
+      }
+      const requiredAnnualNet = desiredMonthlyNet * 12;
+      const requiredAnnualGross = requiredAnnualNet / (1 - taxRate);
+      const requiredInvestment = Math.ceil(requiredAnnualGross / (yieldRate2 / 100));
+      const formattedReq = requiredInvestment.toLocaleString('ko-KR') + '원';
+      const koreanReq = toKorean(requiredInvestment);
+      res2.innerHTML =
+        `필요 투자금: ${formattedReq} (${koreanReq})`;
+    });
+  </script>
+</body>
+</html>
